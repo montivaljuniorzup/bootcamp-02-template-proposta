@@ -1,5 +1,7 @@
 package br.com.zup.proposta.proposta;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.math.BigDecimal;
 
 public class PropostaResponse {
@@ -13,6 +15,9 @@ public class PropostaResponse {
     private String endereco;
 
     private BigDecimal salario;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String estado;
 
     @Deprecated
     public PropostaResponse() {
@@ -32,6 +37,9 @@ public class PropostaResponse {
         this.email = proposta.getEmail();
         this.endereco = proposta.getEndereco();
         this.salario = proposta.getSalario();
+        if(proposta.temEstado()){
+        this.estado = proposta.getEstado();
+        }
     }
 
 
@@ -53,5 +61,9 @@ public class PropostaResponse {
 
     public BigDecimal getSalario() {
         return salario;
+    }
+
+    public String getEstado() {
+        return estado;
     }
 }

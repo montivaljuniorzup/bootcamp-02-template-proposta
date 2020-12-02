@@ -1,11 +1,13 @@
 package br.com.zup.proposta.proposta;
 
+import br.com.zup.proposta.analise.AnaliseClient;
+import br.com.zup.proposta.compartilhado.exception.ApiErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.EntityManager;
@@ -15,11 +17,14 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
 @RequestMapping("/propostas")
 public class NovaPropostaController {
 
     Logger logger = LoggerFactory.getLogger(NovaPropostaController.class);
+    @Autowired
+    private AnaliseClient feign;
 
     private final EntityManager manager;
 
@@ -33,10 +38,15 @@ public class NovaPropostaController {
         List resultList = manager.createQuery("Select p from Proposta p where p.documento =:documento").setParameter("documento", novaPropostaRequest.getDocumento()).getResultList();
         if (resultList.size() > 0) {
             logger.error("Proposta documento={} já existe em nosso banco!", novaPropostaRequest.getDocumento());
-           return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Ja existe uma proposta atrelada a este documento");
+            throw new ApiErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta atrelada a este documento");
         }
         Proposta proposta = novaPropostaRequest.toModel();
         manager.persist(proposta);
+//        SolicitacaoAnalise solicitacaoAnalise = new SolicitacaoAnalise(proposta);
+//
+//        ResultadoAnalise resultado = feign.resultado(solicitacaoAnalise);
+//        System.out.println(resultado);
+
         URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
         logger.info("Proposta documento={} salário={} criada com sucesso!", proposta.getDocumento(), proposta.getSalario());
         return ResponseEntity.created(uri).build();
