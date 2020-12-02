@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 @Component
-@FeignClient(name = "analise", url = "localhost:9999", path = "/api")
+@FeignClient(url = "${proposta.analise.host}", name = "analise")
 public interface AnaliseClient {
 
-    @PostMapping(value = "/solicitacao")
+    @PostMapping(value = "/api/solicitacao")
     ResultadoAnalise resultado(@RequestBody SolicitacaoAnalise solicitacaoAnalise);
 }

@@ -35,17 +35,15 @@ public class NovaPropostaController {
     @PostMapping
     @Transactional
     public ResponseEntity criaNovaProposta(@Valid @RequestBody NovaPropostaRequest novaPropostaRequest, UriComponentsBuilder builder) {
-        List resultList = manager.createQuery("Select p from Proposta p where p.documento =:documento").setParameter("documento", novaPropostaRequest.getDocumento()).getResultList();
+        List resultList = manager
+                .createQuery("Select p from Proposta p where p.documento =:documento")
+                .setParameter("documento", novaPropostaRequest.getDocumento()).getResultList();
         if (resultList.size() > 0) {
             logger.error("Proposta documento={} já existe em nosso banco!", novaPropostaRequest.getDocumento());
-            throw new ApiErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta atrelada a este documento");
+            throw new ApiErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Dados inconsistentes, impossível proseguir o processamento");
         }
         Proposta proposta = novaPropostaRequest.toModel();
         manager.persist(proposta);
-//        SolicitacaoAnalise solicitacaoAnalise = new SolicitacaoAnalise(proposta);
-//
-//        ResultadoAnalise resultado = feign.resultado(solicitacaoAnalise);
-//        System.out.println(resultado);
 
         URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
         logger.info("Proposta documento={} salário={} criada com sucesso!", proposta.getDocumento(), proposta.getSalario());
