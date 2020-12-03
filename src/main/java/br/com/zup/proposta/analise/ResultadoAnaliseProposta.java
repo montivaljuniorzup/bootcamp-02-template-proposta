@@ -1,25 +1,20 @@
 package br.com.zup.proposta.analise;
 
-import br.com.zup.proposta.proposta.Proposta;
-
-public class SolicitacaoAnalise {
+public class ResultadoAnaliseProposta {
 
     private String documento;
 
     private String nome;
 
+    private String resultadoSolicitacao;
+
     private String idProposta;
 
-    public SolicitacaoAnalise(String documento, String nome, String idProposta) {
+    public ResultadoAnaliseProposta(String documento, String nome, String resultadoSolicitacao, String idProposta) {
         this.documento = documento;
         this.nome = nome;
+        this.resultadoSolicitacao = resultadoSolicitacao;
         this.idProposta = idProposta;
-    }
-
-    public SolicitacaoAnalise(Proposta proposta){
-        this.documento = proposta.getDocumento();
-        this.nome = proposta.getNome();
-        this.idProposta = String.valueOf(proposta.getId());
     }
 
     public String getDocumento() {
@@ -28,6 +23,10 @@ public class SolicitacaoAnalise {
 
     public String getNome() {
         return nome;
+    }
+
+    public String getResultadoSolicitacao() {
+        return resultadoSolicitacao;
     }
 
     public String getIdProposta() {

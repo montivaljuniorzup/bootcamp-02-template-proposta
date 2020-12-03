@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.*;
 public interface AnaliseClient {
 
     @PostMapping(value = "/api/solicitacao")
-    ResultadoAnalise resultado(@RequestBody SolicitacaoAnalise solicitacaoAnalise);
+    ResultadoAnaliseProposta resultado(@RequestBody SolicitacaoAnalisePropostaRequest request);
 }

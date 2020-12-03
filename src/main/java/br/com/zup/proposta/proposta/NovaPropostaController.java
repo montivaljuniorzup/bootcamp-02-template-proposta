@@ -1,16 +1,14 @@
 package br.com.zup.proposta.proposta;
 
 import br.com.zup.proposta.analise.AnaliseClient;
-import br.com.zup.proposta.analise.ResultadoAnalise;
-import br.com.zup.proposta.analise.SolicitacaoAnalise;
+import br.com.zup.proposta.analise.ResultadoAnaliseProposta;
+import br.com.zup.proposta.analise.SolicitacaoAnalisePropostaRequest;
 import br.com.zup.proposta.compartilhado.exception.ApiErrorException;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -39,51 +37,50 @@ public class NovaPropostaController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity criaNovaProposta(@Valid @RequestBody NovaPropostaRequest novaPropostaRequest, UriComponentsBuilder builder) {
 
-        Proposta proposta = txTemplate.execute(transactionStatus -> {
-            boolean naoExisteDocumentoNoBanco = manager
-                    .createQuery("Select p from Proposta p where p.documento =:documento")
-                    .setParameter("documento", novaPropostaRequest.getDocumento())
-                    .getResultList()
-                    .isEmpty();
+        boolean naoExisteDocumentoNoBanco = manager
+                .createQuery("Select p from Proposta p where p.documento =:documento")
+                .setParameter("documento", novaPropostaRequest.getDocumento())
+                .getResultList()
+                .isEmpty();
 
-            if (naoExisteDocumentoNoBanco) {
-                Proposta salvaProposta = novaPropostaRequest.toModel();
-                return salvaProposta;
-            }
+        if (naoExisteDocumentoNoBanco) {
+            Proposta proposta = novaPropostaRequest.toModel();
+            manager.persist(proposta);
+
+            SolicitacaoAnalisePropostaRequest request = new SolicitacaoAnalisePropostaRequest(proposta);
+            consultaDadosSolicitante(proposta, request);
+
+            URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
+
+                logger.info("Proposta documento={} salário={} criada com sucesso!", proposta.getDocumento(), proposta.getSalario());
+                return ResponseEntity.created(uri).build();
+        }
+
             logger.error("Proposta para o documento={} já existe em nosso banco!", novaPropostaRequest.getDocumento());
             throw new ApiErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Dados inconsistentes, impossível proseguir o processamento");
-        });
-
-        ResultadoAnalise resultado = buscaStatusSolicitante(proposta);
-
-        txTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                proposta.setEstado(resultado.getResultadoSolicitacao());
-                manager.persist(proposta);
-            }
-
-        });
-
-        URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
-
-        logger.info("Proposta documento={} salário={} criada com sucesso!", proposta.getDocumento(), proposta.getSalario());
-        return ResponseEntity.created(uri).build();
     }
 
-    private ResultadoAnalise buscaStatusSolicitante(Proposta proposta) {
-        SolicitacaoAnalise solicitacaoAnalise = new SolicitacaoAnalise(proposta);
+    private void consultaDadosSolicitante(Proposta proposta, SolicitacaoAnalisePropostaRequest request) {
         try {
+            ResultadoAnaliseProposta resultado = analiseClient.resultado(request);
+
+            proposta.setEstado(resultado.getResultadoSolicitacao());
+            manager.persist(proposta);
             logger.info("Solicitação buscada com sucesso");
-            return analiseClient.resultado(solicitacaoAnalise);
-        } catch (FeignException e) {
-            logger.error("Erro " + e.getCause() + " ao buscar solicitação");
+
+        } catch (FeignException.UnprocessableEntity e) {
+            if (e.getLocalizedMessage().contains("COM_RESTRICAO")) {
+                proposta.setEstado("COM_RESTRICAO");
+                manager.persist(proposta);
+            }
+        }catch (FeignException e ) {
+            logger.error("Erro " + e.getMessage() + " ao buscar solicitação");
             throw new ApiErrorException(HttpStatus.valueOf(e.status()), e.getLocalizedMessage());
         }
     }
-
 
     @GetMapping("/{id}")
     @Transactional
