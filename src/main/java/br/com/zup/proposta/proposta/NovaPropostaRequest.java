@@ -1,6 +1,7 @@
 package br.com.zup.proposta.proposta;
 
 import br.com.zup.proposta.compartilhado.validation.CPFouCNPJ;
+import br.com.zup.proposta.compartilhado.validation.UniqueValue;
 import org.hibernate.validator.constraints.br.CNPJ;
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -18,9 +19,11 @@ public class NovaPropostaRequest {
 
     @NotBlank
     @CPFouCNPJ(message = "Por favor digite um CPF ou um CNPJ válido")
+    @UniqueValue(classe = Proposta.class, atributo = "documento", message = "Ja possui registro no nosso banco")
     private String documento;
 
     @Email
+    @UniqueValue(classe = Proposta.class, atributo = "email", message = "Ja possui registro no nosso banco")
     private String email;
 
     @NotBlank
