@@ -1,6 +1,5 @@
 package br.com.zup.proposta.compartilhado.exception;
 
-import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -49,18 +48,18 @@ public class ApiHandlerAdvice {
                         .body(new ErroPadronizado(Arrays.asList(e.getMessage())));
     }
 
-    @ExceptionHandler(FeignException.FeignClientException.class)
-    public ResponseEntity<ErroPadronizado> handleFeignClientException(FeignException.FeignClientException e){
-                return ResponseEntity
-                        .status(e.status())
-                        .body(new ErroPadronizado(Arrays.asList(e.getMessage())));
-    }
-    @ExceptionHandler(FeignException.FeignServerException.class)
-    public ResponseEntity<ErroPadronizado> handleFeignServerException(FeignException.FeignServerException e){
-                return ResponseEntity
-                        .status(e.status())
-                        .body(new ErroPadronizado(Arrays.asList(e.getMessage())));
-    }
+//    @ExceptionHandler(FeignException.FeignClientException.class)
+//    public ResponseEntity<ErroPadronizado> handleFeignClientException(FeignException.FeignClientException e){
+//                return ResponseEntity
+//                        .status(e.status())
+//                        .body(new ErroPadronizado(Arrays.asList(e.getMessage())));
+//    }
+//    @ExceptionHandler(FeignException.FeignServerException.class)
+//    public ResponseEntity<ErroPadronizado> handleFeignServerException(FeignException.FeignServerException e){
+//                return ResponseEntity
+//                        .status(e.status())
+//                        .body(new ErroPadronizado(Arrays.asList(e.getMessage())));
+//    }
 
 
 

@@ -1,18 +1,21 @@
 package br.com.zup.proposta.proposta;
 
+import br.com.zup.proposta.cartoes.Cartao;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 public class Proposta {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     @NotBlank
     @Column(nullable = false)
@@ -38,6 +41,9 @@ public class Proposta {
     @Enumerated(EnumType.STRING)
     private EstadoProposta estado;
 
+    @OneToOne
+    private Cartao cartao;
+
     @Deprecated
     public Proposta() {
     }
@@ -47,13 +53,14 @@ public class Proposta {
                     @Email String email,
                     @NotBlank String endereco,
                     @Positive @NotNull BigDecimal salario,
-                    @NotNull String estado) {
+                    @NotNull String estado, Cartao cartao) {
         this.nome = nome;
         this.documento = documento;
         this.email = email;
         this.endereco = endereco;
         this.salario = salario;
         this.estado.toEnum(estado);
+        this.cartao = cartao;
     }
 
     public Proposta(@NotBlank String nome,
@@ -68,7 +75,7 @@ public class Proposta {
         this.salario = salario;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -102,5 +109,37 @@ public class Proposta {
 
     public boolean temEstado() {
         return this.estado != null;
+    }
+
+    public Cartao getCartao() {
+        return cartao;
+    }
+
+    public void setCartao(Cartao cartao) {
+        if(estado.equals(EstadoProposta.ELEGIVEL)){
+        this.cartao = cartao;
+        }
+    }
+
+    public boolean naoTemCartao() {
+        return this.cartao == null;
+    }
+
+    public boolean naoTemRestricao() {
+       return this.estado.equals(EstadoProposta.ELEGIVEL);
+    }
+
+    @Override
+    public String toString() {
+        return "Proposta{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", documento='" + documento + '\'' +
+                ", email='" + email + '\'' +
+                ", endereco='" + endereco + '\'' +
+                ", salario=" + salario +
+                ", estado=" + estado +
+                ", cartao=" + cartao +
+                '}';
     }
 }

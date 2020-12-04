@@ -18,10 +18,11 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/propostas")
+@RequestMapping("/v1/propostas")
 public class NovaPropostaController {
 
     private static Logger logger = LoggerFactory.getLogger(NovaPropostaController.class);
@@ -84,7 +85,7 @@ public class NovaPropostaController {
 
     @GetMapping("/{id}")
     @Transactional
-    public ResponseEntity buscaPropostaPeloId(@PathVariable("id") Long id) {
+    public ResponseEntity buscaPropostaPeloId(@PathVariable("id") UUID id) {
         Proposta proposta = manager.find(Proposta.class, id);
         if (Optional.ofNullable(proposta).isEmpty()) {
             logger.error("Proposta id={} não encontrada", id);

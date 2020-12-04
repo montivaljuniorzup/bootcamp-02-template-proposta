@@ -3,10 +3,11 @@ package br.com.zup.proposta.proposta;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class PropostaResponse {
 
-    private Long id;
+    private UUID id;
 
     private String documento;
 
@@ -23,7 +24,7 @@ public class PropostaResponse {
     public PropostaResponse() {
     }
 
-    public PropostaResponse(Long id, String documento, String email, String endereco, BigDecimal salario) {
+    public PropostaResponse(UUID id, String documento, String email, String endereco, BigDecimal salario) {
         this.id = id;
         this.documento = documento;
         this.email = email;
@@ -43,7 +44,7 @@ public class PropostaResponse {
     }
 
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
