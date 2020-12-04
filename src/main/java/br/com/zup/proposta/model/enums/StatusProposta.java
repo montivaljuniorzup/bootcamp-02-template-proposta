@@ -3,13 +3,13 @@ package br.com.zup.proposta.model.enums;
 import br.com.zup.proposta.compartilhado.exception.ApiErrorException;
 import org.springframework.http.HttpStatus;
 
-public enum EstadoProposta {
+public enum StatusProposta {
 
     ELEGIVEL("SEM_RESTRICAO"), NAO_ELEGIVEL("COM_RESTRICAO");
 
     private String descricao;
 
-    EstadoProposta(String descricao) {
+    StatusProposta(String descricao) {
         this.descricao = descricao;
     }
 
@@ -17,11 +17,11 @@ public enum EstadoProposta {
         return descricao;
     }
 
-    public static EstadoProposta toEnum(String estadoAnalise) {
+    public static StatusProposta toEnum(String estadoAnalise) {
         if(estadoAnalise == null){
             return null;
         }
-        for (EstadoProposta e : EstadoProposta.values()) {
+        for (StatusProposta e : StatusProposta.values()) {
             if (estadoAnalise.equals(e.getDescricao())) {
                 return e;
             }

@@ -40,7 +40,7 @@ public class PropostaResponse {
         this.endereco = proposta.getEndereco();
         this.salario = proposta.getSalario();
         if(proposta.temEstado()){
-        this.estado = proposta.getEstado();
+        this.estado = proposta.getStatus();
         }
     }
 

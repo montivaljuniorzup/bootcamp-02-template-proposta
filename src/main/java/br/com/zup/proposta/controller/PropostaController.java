@@ -2,6 +2,7 @@ package br.com.zup.proposta.controller;
 
 import br.com.zup.proposta.dto.request.NovaPropostaRequest;
 import br.com.zup.proposta.dto.response.PropostaResponse;
+import br.com.zup.proposta.dto.response.StatusPropostaResponse;
 import br.com.zup.proposta.feign.AnaliseClient;
 import br.com.zup.proposta.dto.externo.AnalisePropostaResponseExterno;
 import br.com.zup.proposta.dto.request.AnalisePropostaRequest;
@@ -26,15 +27,15 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/propostas")
-public class NovaPropostaController {
+public class PropostaController {
 
-    private static Logger logger = LoggerFactory.getLogger(NovaPropostaController.class);
+    private static Logger logger = LoggerFactory.getLogger(PropostaController.class);
 
     private AnaliseClient analiseClient;
     private final EntityManager manager;
     private TransactionTemplate txTemplate;
 
-    public NovaPropostaController(AnaliseClient analiseClient, EntityManager manager, TransactionTemplate txTemplate) {
+    public PropostaController(AnaliseClient analiseClient, EntityManager manager, TransactionTemplate txTemplate) {
         this.analiseClient = analiseClient;
         this.manager = manager;
         this.txTemplate = txTemplate;
@@ -71,13 +72,13 @@ public class NovaPropostaController {
         try {
             AnalisePropostaResponseExterno resultado = analiseClient.resultado(request);
 
-            proposta.setEstado(resultado.getResultadoSolicitacao());
+            proposta.setStatus(resultado.getResultadoSolicitacao());
             manager.persist(proposta);
             logger.info("Solicitação buscada com sucesso");
 
         } catch (FeignException.UnprocessableEntity e) {
             if (e.getLocalizedMessage().contains("COM_RESTRICAO")) {
-                proposta.setEstado("COM_RESTRICAO");
+                proposta.setStatus("COM_RESTRICAO");
                 manager.persist(proposta);
             }
         }catch (FeignException e ) {
@@ -96,5 +97,17 @@ public class NovaPropostaController {
         }
         logger.info("Proposta id={} encontrada com sucesso", id);
         return ResponseEntity.ok(new PropostaResponse(proposta));
+    }
+
+    @GetMapping("/status/{id}")
+    @Transactional
+    public ResponseEntity buscaStatusPropostaPeloId(@PathVariable("id") UUID id) {
+        Proposta proposta = manager.find(Proposta.class, id);
+        if (Optional.ofNullable(proposta).isEmpty()) {
+            logger.error("Proposta id={} não encontrada", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        logger.info("Proposta id={} encontrada com sucesso", id);
+        return ResponseEntity.ok(new StatusPropostaResponse(proposta));
     }
 }

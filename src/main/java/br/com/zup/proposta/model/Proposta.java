@@ -1,6 +1,6 @@
 package br.com.zup.proposta.model;
 
-import br.com.zup.proposta.model.enums.EstadoProposta;
+import br.com.zup.proposta.model.enums.StatusProposta;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -39,7 +39,7 @@ public class Proposta {
     private BigDecimal salario;
 
     @Enumerated(EnumType.STRING)
-    private EstadoProposta estado;
+    private StatusProposta status;
 
     @OneToOne
     private Cartao cartao;
@@ -53,13 +53,13 @@ public class Proposta {
                     @Email String email,
                     @NotBlank String endereco,
                     @Positive @NotNull BigDecimal salario,
-                    @NotNull String estado, Cartao cartao) {
+                    @NotNull String status, Cartao cartao) {
         this.nome = nome;
         this.documento = documento;
         this.email = email;
         this.endereco = endereco;
         this.salario = salario;
-        this.estado.toEnum(estado);
+        this.status.toEnum(status);
         this.cartao = cartao;
     }
 
@@ -95,20 +95,20 @@ public class Proposta {
         return salario;
     }
 
-    public String getEstado() {
-            return estado.getDescricao();
+    public String getStatus() {
+            return status.getDescricao();
     }
 
     public String getNome() {
         return nome;
     }
 
-    public void setEstado(String estado) {
-        this.estado = EstadoProposta.toEnum(estado);
+    public void setStatus(String status) {
+        this.status = StatusProposta.toEnum(status);
     }
 
     public boolean temEstado() {
-        return this.estado != null;
+        return this.status != null;
     }
 
     public Cartao getCartao() {
@@ -116,7 +116,7 @@ public class Proposta {
     }
 
     public void setCartao(Cartao cartao) {
-        if(estado.equals(EstadoProposta.ELEGIVEL)){
+        if(status.equals(StatusProposta.ELEGIVEL)){
         this.cartao = cartao;
         }
     }
@@ -126,20 +126,10 @@ public class Proposta {
     }
 
     public boolean naoTemRestricao() {
-       return this.estado.equals(EstadoProposta.ELEGIVEL);
+       return this.status.equals(StatusProposta.ELEGIVEL);
     }
 
-    @Override
-    public String toString() {
-        return "Proposta{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", documento='" + documento + '\'' +
-                ", email='" + email + '\'' +
-                ", endereco='" + endereco + '\'' +
-                ", salario=" + salario +
-                ", estado=" + estado +
-                ", cartao=" + cartao +
-                '}';
+    public String getDescricaoStatus() {
+        return this.status.getDescricao();
     }
 }
