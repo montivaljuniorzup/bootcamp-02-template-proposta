@@ -1,9 +1,12 @@
-package br.com.zup.proposta.proposta;
+package br.com.zup.proposta.controller;
 
-import br.com.zup.proposta.analise.AnaliseClient;
-import br.com.zup.proposta.analise.ResultadoAnaliseProposta;
-import br.com.zup.proposta.analise.SolicitacaoAnalisePropostaRequest;
+import br.com.zup.proposta.dto.request.NovaPropostaRequest;
+import br.com.zup.proposta.dto.response.PropostaResponse;
+import br.com.zup.proposta.feign.AnaliseClient;
+import br.com.zup.proposta.dto.externo.AnalisePropostaResponseExterno;
+import br.com.zup.proposta.dto.request.AnalisePropostaRequest;
 import br.com.zup.proposta.compartilhado.exception.ApiErrorException;
+import br.com.zup.proposta.model.Proposta;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +54,7 @@ public class NovaPropostaController {
             Proposta proposta = novaPropostaRequest.toModel();
             manager.persist(proposta);
 
-            SolicitacaoAnalisePropostaRequest request = new SolicitacaoAnalisePropostaRequest(proposta);
+            AnalisePropostaRequest request = new AnalisePropostaRequest(proposta);
             consultaDadosSolicitante(proposta, request);
 
             URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
@@ -64,9 +67,9 @@ public class NovaPropostaController {
             throw new ApiErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Dados inconsistentes, impossível proseguir o processamento");
     }
 
-    private void consultaDadosSolicitante(Proposta proposta, SolicitacaoAnalisePropostaRequest request) {
+    private void consultaDadosSolicitante(Proposta proposta, AnalisePropostaRequest request) {
         try {
-            ResultadoAnaliseProposta resultado = analiseClient.resultado(request);
+            AnalisePropostaResponseExterno resultado = analiseClient.resultado(request);
 
             proposta.setEstado(resultado.getResultadoSolicitacao());
             manager.persist(proposta);

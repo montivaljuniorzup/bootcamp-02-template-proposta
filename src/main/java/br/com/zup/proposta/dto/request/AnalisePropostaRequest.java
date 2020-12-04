@@ -1,8 +1,8 @@
-package br.com.zup.proposta.analise;
+package br.com.zup.proposta.dto.request;
 
-import br.com.zup.proposta.proposta.Proposta;
+import br.com.zup.proposta.model.Proposta;
 
-public class SolicitacaoAnalisePropostaRequest {
+public class AnalisePropostaRequest {
 
     private String documento;
 
@@ -10,13 +10,13 @@ public class SolicitacaoAnalisePropostaRequest {
 
     private String idProposta;
 
-    public SolicitacaoAnalisePropostaRequest(String documento, String nome, String idProposta) {
+    public AnalisePropostaRequest(String documento, String nome, String idProposta) {
         this.documento = documento;
         this.nome = nome;
         this.idProposta = idProposta;
     }
 
-    public SolicitacaoAnalisePropostaRequest(Proposta proposta) {
+    public AnalisePropostaRequest(Proposta proposta) {
         this.documento = proposta.getDocumento();
         this.nome = proposta.getNome();
         this.idProposta = String.valueOf(proposta.getId());

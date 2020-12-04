@@ -1,4 +1,4 @@
-package br.com.zup.proposta.cartoes;
+package br.com.zup.proposta.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -10,22 +10,13 @@ public class Cartao {
     @Id
     private String id;
 
-    private LocalDateTime emitidoEm; // unique Itens
+    private LocalDateTime emitidoEm;
 
     private String titular;
-//    private List<Bloqueio> bloqueios; // unique Itens
-//    private List<AvisoViagem> avisos;    // unique Itens
-//    private List<CarteiraDigital> carteiras; // unique Itens
-//    private List<Parcela> parcelas;  // unique Itens
-    private int limite;
-//    private Renegociacao renegocicao;
-//    private Vencimento vencimeanto;
-//    @OneToOne
-//    @MapsId
-//    @JoinColumn(name = "proposta_id")
-//    private Proposta proposta;
 
-@Deprecated
+    private int limite;
+
+    @Deprecated
     public Cartao() {
     }
 

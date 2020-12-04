@@ -1,6 +1,6 @@
-package br.com.zup.proposta.analise;
+package br.com.zup.proposta.dto.externo;
 
-public class ResultadoAnaliseProposta {
+public class AnalisePropostaResponseExterno {
 
     private String documento;
 
@@ -10,7 +10,7 @@ public class ResultadoAnaliseProposta {
 
     private String idProposta;
 
-    public ResultadoAnaliseProposta(String documento, String nome, String resultadoSolicitacao, String idProposta) {
+    public AnalisePropostaResponseExterno(String documento, String nome, String resultadoSolicitacao, String idProposta) {
         this.documento = documento;
         this.nome = nome;
         this.resultadoSolicitacao = resultadoSolicitacao;

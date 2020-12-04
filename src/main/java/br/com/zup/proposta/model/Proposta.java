@@ -1,6 +1,6 @@
-package br.com.zup.proposta.proposta;
+package br.com.zup.proposta.model;
 
-import br.com.zup.proposta.cartoes.Cartao;
+import br.com.zup.proposta.model.enums.EstadoProposta;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

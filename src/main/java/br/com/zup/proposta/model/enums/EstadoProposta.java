@@ -1,4 +1,4 @@
-package br.com.zup.proposta.proposta;
+package br.com.zup.proposta.model.enums;
 
 import br.com.zup.proposta.compartilhado.exception.ApiErrorException;
 import org.springframework.http.HttpStatus;

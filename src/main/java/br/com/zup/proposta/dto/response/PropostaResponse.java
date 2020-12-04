@@ -1,5 +1,6 @@
-package br.com.zup.proposta.proposta;
+package br.com.zup.proposta.dto.response;
 
+import br.com.zup.proposta.model.Proposta;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.math.BigDecimal;

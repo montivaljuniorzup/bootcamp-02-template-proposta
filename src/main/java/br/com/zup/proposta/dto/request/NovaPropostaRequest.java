@@ -1,9 +1,8 @@
-package br.com.zup.proposta.proposta;
+package br.com.zup.proposta.dto.request;
 
 import br.com.zup.proposta.compartilhado.validation.CPFouCNPJ;
 import br.com.zup.proposta.compartilhado.validation.UniqueValue;
-import org.hibernate.validator.constraints.br.CNPJ;
-import org.hibernate.validator.constraints.br.CPF;
+import br.com.zup.proposta.model.Proposta;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

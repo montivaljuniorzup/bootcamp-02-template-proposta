@@ -1,5 +1,7 @@
-package br.com.zup.proposta.analise;
+package br.com.zup.proposta.feign;
 
+import br.com.zup.proposta.dto.externo.AnalisePropostaResponseExterno;
+import br.com.zup.proposta.dto.request.AnalisePropostaRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -9,5 +11,5 @@ import org.springframework.web.bind.annotation.*;
 public interface AnaliseClient {
 
     @PostMapping(value = "/api/solicitacao")
-    ResultadoAnaliseProposta resultado(@RequestBody SolicitacaoAnalisePropostaRequest request);
+    AnalisePropostaResponseExterno resultado(@RequestBody AnalisePropostaRequest request);
 }
