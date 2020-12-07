@@ -58,7 +58,7 @@ public class PropostaController {
             AnalisePropostaRequest request = new AnalisePropostaRequest(proposta);
             consultaDadosSolicitante(proposta, request);
 
-            URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
+            URI uri = builder.path("/v1/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
 
                 logger.info("Proposta documento={} salário={} criada com sucesso!", proposta.getDocumento(), proposta.getSalario());
                 return ResponseEntity.created(uri).build();
@@ -66,25 +66,6 @@ public class PropostaController {
 
             logger.error("Proposta para o documento={} já existe em nosso banco!", novaPropostaRequest.getDocumento());
             throw new ApiErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Dados inconsistentes, impossível proseguir o processamento");
-    }
-
-    private void consultaDadosSolicitante(Proposta proposta, AnalisePropostaRequest request) {
-        try {
-            AnalisePropostaResponseExterno resultado = analiseClient.resultado(request);
-
-            proposta.setStatus(resultado.getResultadoSolicitacao());
-            manager.persist(proposta);
-            logger.info("Solicitação buscada com sucesso");
-
-        } catch (FeignException.UnprocessableEntity e) {
-            if (e.getLocalizedMessage().contains("COM_RESTRICAO")) {
-                proposta.setStatus("COM_RESTRICAO");
-                manager.persist(proposta);
-            }
-        }catch (FeignException e ) {
-            logger.error("Erro " + e.getMessage() + " ao buscar solicitação");
-            throw new ApiErrorException(HttpStatus.valueOf(e.status()), e.getLocalizedMessage());
-        }
     }
 
     @GetMapping("/{id}")
@@ -109,5 +90,24 @@ public class PropostaController {
         }
         logger.info("Proposta id={} encontrada com sucesso", id);
         return ResponseEntity.ok(new StatusPropostaResponse(proposta));
+    }
+
+    private void consultaDadosSolicitante(Proposta proposta, AnalisePropostaRequest request) {
+        try {
+            AnalisePropostaResponseExterno resultado = analiseClient.resultado(request);
+
+            proposta.setStatus(resultado.getResultadoSolicitacao());
+            manager.persist(proposta);
+            logger.info("Solicitação buscada com sucesso");
+
+        } catch (FeignException.UnprocessableEntity e) {
+            if (e.getLocalizedMessage().contains("COM_RESTRICAO")) {
+                proposta.setStatus("COM_RESTRICAO");
+                manager.persist(proposta);
+            }
+        }catch (FeignException e ) {
+            logger.error("Erro " + e.getMessage() + " ao buscar solicitação");
+            throw new ApiErrorException(HttpStatus.valueOf(e.status()), e.getLocalizedMessage());
+        }
     }
 }

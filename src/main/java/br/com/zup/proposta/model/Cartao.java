@@ -1,20 +1,33 @@
 package br.com.zup.proposta.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Cartao {
 
+    /**
+     * O Id é fornecido pela api externa
+     */
     @Id
     private String id;
 
     private LocalDateTime emitidoEm;
 
+    @NotBlank
     private String titular;
 
+    @NotNull
     private int limite;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Biometria> biometrias;
 
     @Deprecated
     public Cartao() {
@@ -44,5 +57,13 @@ public class Cartao {
 
     public int getLimite() {
         return limite;
+    }
+
+    public void setBiometrias(List<Biometria> biometrias) {
+        this.biometrias = biometrias;
+    }
+
+    public void adcionaNovaBiometria(Biometria biometria) {
+    this.biometrias.add(biometria);
     }
 }

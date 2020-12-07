@@ -1,5 +1,6 @@
 package br.com.zup.proposta.dto.response;
 
+import br.com.zup.proposta.model.Cartao;
 import br.com.zup.proposta.model.Proposta;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -21,6 +22,9 @@ public class PropostaResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String estado;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Cartao cartao;
+
     @Deprecated
     public PropostaResponse() {
     }
@@ -41,6 +45,7 @@ public class PropostaResponse {
         this.salario = proposta.getSalario();
         if(proposta.temEstado()){
         this.estado = proposta.getStatus();
+        this.cartao = proposta.getCartao();
         }
     }
 
@@ -67,5 +72,9 @@ public class PropostaResponse {
 
     public String getEstado() {
         return estado;
+    }
+
+    public Cartao getCartao() {
+        return cartao;
     }
 }

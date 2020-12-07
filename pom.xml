@@ -82,6 +82,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+<!--                Não excluir o devtools dos plugins do maven ao gerar o jar do projeto-->
+                <configuration>
+                    <excludeDevtools>false</excludeDevtools>
+                </configuration>
             </plugin>
         </plugins>
     </build>

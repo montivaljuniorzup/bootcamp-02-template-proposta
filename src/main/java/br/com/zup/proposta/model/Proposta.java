@@ -41,7 +41,7 @@ public class Proposta {
     @Enumerated(EnumType.STRING)
     private StatusProposta status;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Cartao cartao;
 
     @Deprecated

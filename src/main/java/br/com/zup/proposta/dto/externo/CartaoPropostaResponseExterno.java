@@ -3,6 +3,7 @@ package br.com.zup.proposta.dto.externo;
 import br.com.zup.proposta.model.Cartao;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class CartaoPropostaResponseExterno {
 
@@ -25,11 +26,11 @@ public class CartaoPropostaResponseExterno {
         this.limite);
     }
 
-    public CartaoPropostaResponseExterno(String id,
+    public CartaoPropostaResponseExterno(UUID id,
                                          LocalDateTime emitidoEm,
                                          String titular,
                                          int limite) {
-        this.id = id;
+        this.id = String.valueOf(this.id);
         this.emitidoEm = emitidoEm;
         this.titular = titular;
         this.limite = limite;
