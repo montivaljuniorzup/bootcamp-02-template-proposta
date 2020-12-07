@@ -32,4 +32,12 @@ public class Biometria {
     public UUID getId() {
         return id;
     }
+
+    public String getFingerPrint() {
+        return fingerPrint;
+    }
+
+    public LocalDateTime getDataCadastro() {
+        return dataCadastro;
+    }
 }

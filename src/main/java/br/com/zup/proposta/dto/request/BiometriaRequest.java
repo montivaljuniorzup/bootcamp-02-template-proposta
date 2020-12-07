@@ -17,7 +17,6 @@ public class BiometriaRequest {
         this.fingerPrint = fingerPrint;
     }
 
-
     public Biometria toModel(){
         return new Biometria(fingerPrint);
     }
