@@ -58,7 +58,7 @@ public class PropostaController {
             AnalisePropostaRequest request = new AnalisePropostaRequest(proposta);
             consultaDadosSolicitante(proposta, request);
 
-            URI uri = builder.path("/v1/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
+            URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
 
                 logger.info("Proposta documento={} salário={} criada com sucesso!", proposta.getDocumento(), proposta.getSalario());
                 return ResponseEntity.created(uri).build();

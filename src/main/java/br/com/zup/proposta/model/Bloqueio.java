@@ -20,8 +20,25 @@ public class Bloqueio {
 
     private String userAgentClienteSolicitante;
 
-    public Bloqueio() {
-        instante = LocalDateTime.now();
+    public Bloqueio(String ipClienteSolicitante, String userAgentClienteSolicitante) {
+        this.instante = LocalDateTime.now();
+        this.ipClienteSolicitante = ipClienteSolicitante;
+        this.userAgentClienteSolicitante = userAgentClienteSolicitante;
     }
 
+    @Deprecated
+    public Bloqueio() {
+    }
+
+    public LocalDateTime getInstante() {
+        return instante;
+    }
+
+    public String getIpClienteSolicitante() {
+        return ipClienteSolicitante;
+    }
+
+    public String getUserAgentClienteSolicitante() {
+        return userAgentClienteSolicitante;
+    }
 }

@@ -43,8 +43,8 @@ public class Cartao {
         this.limite = limite;
     }
 
-    public void bloquerCartao() {
-        this.bloqueio = new Bloqueio();
+    public void bloquerCartao(Bloqueio bloqueio) {
+        this.bloqueio = bloqueio;
     }
 
     public boolean cartaoEstaBloqueado(){
@@ -65,6 +65,10 @@ public class Cartao {
 
     public int getLimite() {
         return limite;
+    }
+
+    public Bloqueio getBloqueio() {
+        return bloqueio;
     }
 
     public void setBiometrias(List<Biometria> biometrias) {

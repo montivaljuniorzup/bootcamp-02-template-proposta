@@ -4,7 +4,10 @@ import br.com.zup.proposta.compartilhado.validation.FingerPrintValidator;
 import br.com.zup.proposta.dto.request.BiometriaRequest;
 import br.com.zup.proposta.dto.response.BiometriaResponse;
 import br.com.zup.proposta.model.Biometria;
+import br.com.zup.proposta.model.Bloqueio;
 import br.com.zup.proposta.model.Cartao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
@@ -24,6 +27,7 @@ import java.util.UUID;
 @RequestMapping("/cartoes")
 public class CartaoController {
 
+    private static Logger logger = LoggerFactory.getLogger(CartaoController.class);
     private EntityManager manager;
 
     public CartaoController(EntityManager manager) {
@@ -47,7 +51,7 @@ public class CartaoController {
         Biometria biometria = biometriaRequest.toModel();
         cartao.adcionaNovaBiometria(biometria);
         manager.persist(cartao);
-        URI uri = builder.path("/v1/cartoes/biometria/{id}").buildAndExpand(biometria.getId()).toUri();
+        URI uri = builder.path("/cartoes/biometria/{id}").buildAndExpand(biometria.getId()).toUri();
         return ResponseEntity.created(uri).build();
     }
 
@@ -62,12 +66,24 @@ public class CartaoController {
     }
 
     @PostMapping("/{id}/bloqueio")
-    public ResponseEntity bloqueiaCartao(@PathVariable("id") UUID id, HttpServletRequest client){
-        String ipAddress = client.getHeader("X-FORWARDED-FOR");
-        if (ipAddress == null) {
-            //Retorna a String contendo o
-            ipAddress = client.getRemoteAddr();
+    @Transactional
+    public ResponseEntity bloqueiaCartao(@PathVariable("id") String id, HttpServletRequest client) {
+        Cartao cartao = manager.find(Cartao.class, id);
+        if (cartao == null) {
+            logger.error("Não foi encontrado cartao {} no banco de dados", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Impossível bloquear cartão, dados inconsistentes");
         }
-        return null;
+        if (cartao.cartaoEstaBloqueado()) {
+            logger.error("O cartao {} ja está bloqueado", id);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível bloquear cartão, dados inconsistentes");
+        }
+        String ipAddress = client.getRemoteAddr();
+        String userAgentStr = client.getHeader("User-Agent");
+
+        Bloqueio bloqueio = new Bloqueio(ipAddress, userAgentStr);
+        manager.persist(bloqueio);
+        cartao.bloquerCartao(bloqueio);
+        logger.info("O cartao {} foi atualizado com sucesso", id);
+        return ResponseEntity.ok().build();
     }
 }
