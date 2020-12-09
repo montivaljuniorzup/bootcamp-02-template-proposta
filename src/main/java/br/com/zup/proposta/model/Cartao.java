@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,6 +37,9 @@ public class Cartao {
     @OneToOne(cascade = CascadeType.ALL)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Bloqueio bloqueio;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<AvisoViagem> viagens = new ArrayList<>();
 
     @Deprecated
     public Cartao() {
@@ -98,5 +102,9 @@ public class Cartao {
 
     public void adcionaNovaBiometria(Biometria biometria) {
     this.biometrias.add(biometria);
+    }
+
+    public void adcionaNovaViagem(AvisoViagem avisoViagem) {
+        this.viagens.add(avisoViagem);
     }
 }

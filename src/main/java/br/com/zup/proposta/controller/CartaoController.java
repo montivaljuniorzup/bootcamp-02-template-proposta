@@ -3,9 +3,11 @@ package br.com.zup.proposta.controller;
 import br.com.zup.proposta.compartilhado.validation.FingerPrintValidator;
 import br.com.zup.proposta.dto.externo.SolicitacaoBloqueio;
 import br.com.zup.proposta.dto.externo.StatusCartaoResponseExterno;
+import br.com.zup.proposta.dto.request.AvisoViagemRequest;
 import br.com.zup.proposta.dto.request.BiometriaRequest;
 import br.com.zup.proposta.dto.response.BiometriaResponse;
 import br.com.zup.proposta.feign.CartaoClient;
+import br.com.zup.proposta.model.AvisoViagem;
 import br.com.zup.proposta.model.Biometria;
 import br.com.zup.proposta.model.Bloqueio;
 import br.com.zup.proposta.model.Cartao;
@@ -94,10 +96,24 @@ public class CartaoController {
             manager.persist(bloqueio);
             logger.info("O cartao {} foi atualizado com sucesso", id);
         } catch (FeignException e) {
-            logger.info("Não foi possível bloquear o cartao. Erro {}, {}", e.status(), e.getMessage());
+            logger.error("Não foi possível bloquear o cartao. Erro {}, {}", e.status(), e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível bloquear cartão, dados inconsistentes");
         }
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/viagem")
+    @Transactional
+    public ResponseEntity comunicaViagem(@RequestParam(value = "id", required = true) String id, AvisoViagemRequest avisoViagemRequest, HttpServletRequest client) {
+        Cartao cartao = manager.find(Cartao.class, id);
+        if (cartao == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Impossível cadastrar viagem, dados inconsistentes");
+        }
+        AvisoViagem avisoViagem = avisoViagemRequest.toModel(client);
+        manager.persist(avisoViagem);
+        cartao.adcionaNovaViagem(avisoViagem);
+        manager.persist(cartao);
         return ResponseEntity.ok().build();
     }
 }
