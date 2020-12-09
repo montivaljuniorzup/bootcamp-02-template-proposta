@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 @Component
-@FeignClient(url = "http://localhost:8888", name = "contas")
+@FeignClient(url = "${proposta.cartao.host}", name = "contas")
 public interface CartaoClient {
-
+//url = "http://localhost:8888"
     @GetMapping(value = "/api/cartoes")
     CartaoPropostaResponseExterno buscaCartaoPorId(@RequestParam("idProposta") String id);
 
