@@ -1,9 +1,6 @@
 package br.com.zup.proposta.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -29,6 +26,9 @@ public class Cartao {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Biometria> biometrias;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private Bloqueio bloqueio;
+
     @Deprecated
     public Cartao() {
     }
@@ -41,6 +41,14 @@ public class Cartao {
         this.emitidoEm = emitidoEm;
         this.titular = titular;
         this.limite = limite;
+    }
+
+    public void bloquerCartao() {
+        this.bloqueio = new Bloqueio();
+    }
+
+    public boolean cartaoEstaBloqueado(){
+        return this.bloqueio != null;
     }
 
     public String getId() {

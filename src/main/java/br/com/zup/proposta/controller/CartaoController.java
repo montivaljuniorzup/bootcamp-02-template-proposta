@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
@@ -20,12 +21,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/v1/biometrias")
-public class BiometriaController {
+@RequestMapping("/cartoes")
+public class CartaoController {
 
     private EntityManager manager;
 
-    public BiometriaController(EntityManager manager) {
+    public CartaoController(EntityManager manager) {
         this.manager = manager;
     }
 
@@ -34,7 +35,7 @@ public class BiometriaController {
         binder.addValidators(new FingerPrintValidator());
     }
 
-    @PostMapping
+    @PostMapping("/biometria")
     @Transactional
     public ResponseEntity criaBiometria(@RequestParam("id") String idCartao,
                                         @RequestBody @Valid BiometriaRequest biometriaRequest,
@@ -46,11 +47,11 @@ public class BiometriaController {
         Biometria biometria = biometriaRequest.toModel();
         cartao.adcionaNovaBiometria(biometria);
         manager.persist(cartao);
-        URI uri = builder.path("/v1/biometrias/{id}").buildAndExpand(biometria.getId()).toUri();
+        URI uri = builder.path("/v1/cartoes/biometria/{id}").buildAndExpand(biometria.getId()).toUri();
         return ResponseEntity.created(uri).build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/biometria/{id}")
     @Transactional
     public ResponseEntity buscaBiometriaPorId(@PathVariable("id") UUID id) {
         Biometria biometria = manager.find(Biometria.class, id);
@@ -58,5 +59,15 @@ public class BiometriaController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Biometria não encontrada");
         }
         return ResponseEntity.ok(new BiometriaResponse(biometria));
+    }
+
+    @PostMapping("/{id}/bloqueio")
+    public ResponseEntity bloqueiaCartao(@PathVariable("id") UUID id, HttpServletRequest client){
+        String ipAddress = client.getHeader("X-FORWARDED-FOR");
+        if (ipAddress == null) {
+            //Retorna a String contendo o
+            ipAddress = client.getRemoteAddr();
+        }
+        return null;
     }
 }

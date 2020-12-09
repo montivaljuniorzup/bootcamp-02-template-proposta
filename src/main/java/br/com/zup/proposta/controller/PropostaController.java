@@ -26,7 +26,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/v1/propostas")
+@RequestMapping("/propostas")
 public class PropostaController {
 
     private static Logger logger = LoggerFactory.getLogger(PropostaController.class);
