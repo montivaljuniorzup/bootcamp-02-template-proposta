@@ -17,6 +17,8 @@
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR9</spring-cloud.version>
+        <!--        Logs em Json     Parte 1/3   -->
+        <ch.qos.logback.version>1.2.3</ch.qos.logback.version>
     </properties>
 
     <dependencies>
@@ -44,6 +46,18 @@
             <optional>true</optional>
         </dependency>
 
+        <!--                Oauth2                  -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+
         <!--Banco de Dados H2-->
 
         <dependency>
@@ -65,6 +79,12 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
+        <!--        Logs em Json     Parte 2/3   -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.4</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -75,6 +95,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!--        Logs em Json     Parte 3/3   -->
+            <dependency>
+
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${ch.qos.logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>${ch.qos.logback.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -82,7 +115,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-<!--                Não excluir o devtools dos plugins do maven ao gerar o jar do projeto-->
+                <!--                Não excluir o devtools dos plugins do maven ao gerar o jar do projeto-->
                 <configuration>
                     <excludeDevtools>false</excludeDevtools>
                 </configuration>

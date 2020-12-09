@@ -59,9 +59,4 @@ public class BiometriaController {
         }
         return ResponseEntity.ok(new BiometriaResponse(biometria));
     }
-
-    public static void main(String[] args) {
-
-    }
-
 }
