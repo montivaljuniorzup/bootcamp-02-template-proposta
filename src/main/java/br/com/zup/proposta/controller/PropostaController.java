@@ -80,7 +80,7 @@ public class PropostaController {
         return ResponseEntity.ok(new PropostaResponse(proposta));
     }
 
-    @GetMapping("/status/{id}")
+    @GetMapping("/{id}/status")
     @Transactional
     public ResponseEntity buscaStatusPropostaPeloId(@PathVariable("id") UUID id) {
         Proposta proposta = manager.find(Proposta.class, id);

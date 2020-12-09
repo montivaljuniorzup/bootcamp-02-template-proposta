@@ -1,5 +1,8 @@
 package br.com.zup.proposta.model;
 
+import br.com.zup.proposta.model.enums.StatusCartao;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -26,7 +29,12 @@ public class Cartao {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Biometria> biometrias;
 
+    @Enumerated(EnumType.STRING)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private StatusCartao status;
+
     @OneToOne(cascade = CascadeType.ALL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Bloqueio bloqueio;
 
     @Deprecated
@@ -44,10 +52,12 @@ public class Cartao {
     }
 
     public void bloquerCartao(Bloqueio bloqueio) {
+        this.status = StatusCartao.BLOQUEADO;
         this.bloqueio = bloqueio;
     }
 
     public boolean cartaoEstaBloqueado(){
+
         return this.bloqueio != null;
     }
 
@@ -69,6 +79,17 @@ public class Cartao {
 
     public Bloqueio getBloqueio() {
         return bloqueio;
+    }
+
+    public String getStatus() {
+        if(this.status == null){
+            return null;
+        }
+        return status.getDescricao();
+    }
+
+    public void setStatus(String status) {
+        this.status = StatusCartao.toEnum(status);
     }
 
     public void setBiometrias(List<Biometria> biometrias) {

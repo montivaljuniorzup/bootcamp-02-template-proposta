@@ -49,7 +49,7 @@ public class TarefaCartao {
 
             try {
                 logger.info("Fazendo chamada externa");
-                CartaoPropostaResponseExterno cartao = cartaoClient.buscaCartaoPorId(p.getId());
+                CartaoPropostaResponseExterno cartao = cartaoClient.buscaCartaoPorId(String.valueOf(p.getId()));
 
                 logger.info("Encontrado cartão {} da proposta {}", cartao.getId(), p.getId());
 

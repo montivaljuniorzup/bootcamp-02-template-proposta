@@ -1,11 +1,15 @@
 package br.com.zup.proposta.controller;
 
 import br.com.zup.proposta.compartilhado.validation.FingerPrintValidator;
+import br.com.zup.proposta.dto.externo.SolicitacaoBloqueio;
+import br.com.zup.proposta.dto.externo.StatusCartaoResponseExterno;
 import br.com.zup.proposta.dto.request.BiometriaRequest;
 import br.com.zup.proposta.dto.response.BiometriaResponse;
+import br.com.zup.proposta.feign.CartaoClient;
 import br.com.zup.proposta.model.Biometria;
 import br.com.zup.proposta.model.Bloqueio;
 import br.com.zup.proposta.model.Cartao;
+import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -28,9 +32,11 @@ import java.util.UUID;
 public class CartaoController {
 
     private static Logger logger = LoggerFactory.getLogger(CartaoController.class);
+    private CartaoClient cartaoClient;
     private EntityManager manager;
 
-    public CartaoController(EntityManager manager) {
+    public CartaoController(CartaoClient cartaoClient, EntityManager manager) {
+        this.cartaoClient = cartaoClient;
         this.manager = manager;
     }
 
@@ -51,11 +57,11 @@ public class CartaoController {
         Biometria biometria = biometriaRequest.toModel();
         cartao.adcionaNovaBiometria(biometria);
         manager.persist(cartao);
-        URI uri = builder.path("/cartoes/biometria/{id}").buildAndExpand(biometria.getId()).toUri();
+        URI uri = builder.path("/cartoes/{id}/biometria").buildAndExpand(biometria.getId()).toUri();
         return ResponseEntity.created(uri).build();
     }
 
-    @GetMapping("/biometria/{id}")
+    @GetMapping("/{id}/biometria")
     @Transactional
     public ResponseEntity buscaBiometriaPorId(@PathVariable("id") UUID id) {
         Biometria biometria = manager.find(Biometria.class, id);
@@ -69,6 +75,7 @@ public class CartaoController {
     @Transactional
     public ResponseEntity bloqueiaCartao(@PathVariable("id") String id, HttpServletRequest client) {
         Cartao cartao = manager.find(Cartao.class, id);
+
         if (cartao == null) {
             logger.error("Não foi encontrado cartao {} no banco de dados", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Impossível bloquear cartão, dados inconsistentes");
@@ -81,9 +88,16 @@ public class CartaoController {
         String userAgentStr = client.getHeader("User-Agent");
 
         Bloqueio bloqueio = new Bloqueio(ipAddress, userAgentStr);
-        manager.persist(bloqueio);
-        cartao.bloquerCartao(bloqueio);
-        logger.info("O cartao {} foi atualizado com sucesso", id);
+        try {
+            StatusCartaoResponseExterno statusCartao = cartaoClient.bloqueiaCartao(id, new SolicitacaoBloqueio("Propostas"));
+            cartao.bloquerCartao(bloqueio);
+            manager.persist(bloqueio);
+            logger.info("O cartao {} foi atualizado com sucesso", id);
+        } catch (FeignException e) {
+            logger.info("Não foi possível bloquear o cartao. Erro {}, {}", e.status(), e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível bloquear cartão, dados inconsistentes");
+        }
+
         return ResponseEntity.ok().build();
     }
 }
