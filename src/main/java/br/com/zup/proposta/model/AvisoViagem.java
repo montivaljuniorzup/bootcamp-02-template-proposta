@@ -42,4 +42,28 @@ public class AvisoViagem {
         this.ipCliente = ipCliente;
         this.userAgent = userAgent;
     }
+
+    public String getDestino() {
+        return destino;
+    }
+
+    public LocalDate getTerminoViagem() {
+        return terminoViagem;
+    }
+
+    public String getIpCliente() {
+        return ipCliente;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public LocalDateTime getInstanteCadastro() {
+        return instanteCadastro;
+    }
+
+    public UUID getId() {
+        return id;
+    }
 }

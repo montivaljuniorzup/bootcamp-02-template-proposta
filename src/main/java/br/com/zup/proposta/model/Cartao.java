@@ -92,6 +92,9 @@ public class Cartao {
         return status.getDescricao();
     }
 
+    public List<AvisoViagem> getViagens() {
+        return viagens;
+    }
     public void setStatus(String status) {
         this.status = StatusCartao.toEnum(status);
     }

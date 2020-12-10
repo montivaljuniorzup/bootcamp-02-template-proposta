@@ -1,6 +1,6 @@
 package br.com.zup.proposta.controller;
 
-import br.com.zup.proposta.compartilhado.validation.FingerPrintValidator;
+import br.com.zup.proposta.dto.externo.ResultadoAvisoViagem;
 import br.com.zup.proposta.dto.externo.SolicitacaoBloqueio;
 import br.com.zup.proposta.dto.externo.StatusCartaoResponseExterno;
 import br.com.zup.proposta.dto.request.AvisoViagemRequest;
@@ -11,12 +11,12 @@ import br.com.zup.proposta.model.AvisoViagem;
 import br.com.zup.proposta.model.Biometria;
 import br.com.zup.proposta.model.Bloqueio;
 import br.com.zup.proposta.model.Cartao;
+import br.com.zup.proposta.model.enums.Resultado;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -42,10 +42,10 @@ public class CartaoController {
         this.manager = manager;
     }
 
-    @InitBinder
-    public void init(WebDataBinder binder) {
-        binder.addValidators(new FingerPrintValidator());
-    }
+//    @InitBinder
+//    public void init(WebDataBinder binder) {
+//        binder.addValidators(new FingerPrintValidator());
+//    }
 
     @PostMapping("/biometria")
     @Transactional
@@ -105,15 +105,28 @@ public class CartaoController {
 
     @PostMapping("/viagem")
     @Transactional
-    public ResponseEntity comunicaViagem(@RequestParam(value = "id", required = true) String id, AvisoViagemRequest avisoViagemRequest, HttpServletRequest client) {
+    public ResponseEntity comunicaViagem(@RequestParam(value = "id", required = true) String id, @RequestBody AvisoViagemRequest avisoViagemRequest, HttpServletRequest client) {
         Cartao cartao = manager.find(Cartao.class, id);
         if (cartao == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Impossível cadastrar viagem, dados inconsistentes");
         }
-        AvisoViagem avisoViagem = avisoViagemRequest.toModel(client);
-        manager.persist(avisoViagem);
-        cartao.adcionaNovaViagem(avisoViagem);
-        manager.persist(cartao);
+        try{
+            ResultadoAvisoViagem resultadoAvisoViagem = cartaoClient.avisaViagem(id, avisoViagemRequest);
+            if(resultadoAvisoViagem.getResultado().equals(Resultado.CRIADO)){
+            AvisoViagem avisoViagem = avisoViagemRequest.toModel(client);
+            manager.persist(avisoViagem);
+            logger.info("Aviso gerado. aviso {}", avisoViagem.getId());
+            cartao.adcionaNovaViagem(avisoViagem);
+            manager.persist(cartao);
+            logger.info("Cartao atualizado");
+            }
+        }catch (FeignException.FeignServerException e){
+            logger.error("Não foi possível cadastrar aviso viagem. Erro {}, {}", e.status(), e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível cadastrar viagem no momento, tente novamente mais tarde");
+        }catch (FeignException.FeignClientException e){
+            logger.error("Impossível cadastrar viagem. Erro {}, {}", e.status(), e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "IImpossível cadastrar viagem, dados inconsistentes");
+        }
         return ResponseEntity.ok().build();
     }
 }

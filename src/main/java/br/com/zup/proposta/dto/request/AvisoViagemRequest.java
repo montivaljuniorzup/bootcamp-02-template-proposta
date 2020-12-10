@@ -14,13 +14,11 @@ public class AvisoViagemRequest {
     private String destino;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate terminoViagem;
 
-    @NotBlank
     private String ipCliente;
 
-    @NotBlank
     private String userAgent;
 
     public AvisoViagem toModel(HttpServletRequest request) {
