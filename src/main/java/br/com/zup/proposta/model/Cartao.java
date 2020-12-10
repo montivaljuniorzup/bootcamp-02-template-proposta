@@ -22,9 +22,11 @@ public class Cartao {
     private LocalDateTime emitidoEm;
 
     @NotBlank
+    @Column(nullable = false)
     private String titular;
 
     @NotNull
+    @Column(nullable = false)
     private int limite;
 
     @OneToMany(cascade = CascadeType.ALL)

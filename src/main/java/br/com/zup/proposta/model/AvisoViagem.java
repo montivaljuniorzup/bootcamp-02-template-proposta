@@ -1,9 +1,6 @@
 package br.com.zup.proposta.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -18,15 +15,19 @@ public class AvisoViagem {
     private UUID id;
 
     @NotBlank
+    @Column(nullable = false)
     private String destino;
 
     @NotNull
+    @Column(nullable = false)
     private LocalDate terminoViagem;
 
     @NotBlank
+    @Column(nullable = false)
     private String ipCliente;
 
     @NotBlank
+    @Column(nullable = false)
     private String userAgent;
 
     private LocalDateTime instanteCadastro;

@@ -1,9 +1,6 @@
 package br.com.zup.proposta.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,9 +12,12 @@ public class Biometria {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @NotNull
+    @Column(nullable = false)
     private LocalDateTime dataCadastro;
 
     @NotNull
+    @Column(nullable = false)
     private String fingerPrint;
 
     @Deprecated

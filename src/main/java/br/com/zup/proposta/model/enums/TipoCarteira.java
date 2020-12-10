@@ -4,7 +4,7 @@ import br.com.zup.proposta.compartilhado.exception.ApiErrorException;
 import org.springframework.http.HttpStatus;
 
 public enum TipoCarteira {
-    SAMSUNGPAY("samsungpay"),PAYPAL("paypal");
+    SAMSUNGPAY("samsung pay"),PAYPAL("paypal");
 
     private String descrição;
 
@@ -21,7 +21,7 @@ public enum TipoCarteira {
             throw new ApiErrorException(HttpStatus.BAD_REQUEST, "Tipo de descrição inválido");
         }
         for(TipoCarteira t : TipoCarteira.values()){
-            if(descricao.equals(t.getDescrição())){
+            if(descricao.equalsIgnoreCase(t.getDescrição())){
                 return t;
             }
         }

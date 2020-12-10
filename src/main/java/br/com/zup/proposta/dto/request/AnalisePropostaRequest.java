@@ -2,12 +2,17 @@ package br.com.zup.proposta.dto.request;
 
 import br.com.zup.proposta.model.Proposta;
 
+import javax.validation.constraints.NotBlank;
+
 public class AnalisePropostaRequest {
 
+    @NotBlank
     private String documento;
 
+    @NotBlank
     private String nome;
 
+    @NotBlank
     private String idProposta;
 
     public AnalisePropostaRequest(String documento, String nome, String idProposta) {

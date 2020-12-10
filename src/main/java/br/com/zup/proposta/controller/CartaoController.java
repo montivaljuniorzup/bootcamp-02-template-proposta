@@ -1,15 +1,15 @@
 package br.com.zup.proposta.controller;
 
-import br.com.zup.proposta.dto.externo.ResultadoCarteira;
 import br.com.zup.proposta.dto.externo.SolicitacaoBloqueio;
-import br.com.zup.proposta.dto.externo.SolicitacaoInclusaoCarteira;
 import br.com.zup.proposta.dto.externo.StatusCartaoResponseExterno;
 import br.com.zup.proposta.dto.request.AvisoViagemRequest;
 import br.com.zup.proposta.dto.request.BiometriaRequest;
 import br.com.zup.proposta.dto.response.BiometriaResponse;
-import br.com.zup.proposta.dto.response.CarteiraDigitalResponse;
 import br.com.zup.proposta.feign.CartaoClient;
-import br.com.zup.proposta.model.*;
+import br.com.zup.proposta.model.AvisoViagem;
+import br.com.zup.proposta.model.Biometria;
+import br.com.zup.proposta.model.Bloqueio;
+import br.com.zup.proposta.model.Cartao;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,48 +128,4 @@ public class CartaoController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/carteira")
-    @Transactional
-    public ResponseEntity deveCadastrarCarteira(@RequestParam(value = "id", required = true) String id,
-                                                @Valid @RequestBody SolicitacaoInclusaoCarteira solicitacao,
-                                                UriComponentsBuilder builder) {
-        Cartao cartao = manager.find(Cartao.class, id);
-        if (cartao == null) {
-            logger.error("Não foi encontrado cartao {} no banco de dados", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Impossível encontrar cartão, dados inconsistentes");
-        }
-        if (cartao.temCarteiraDigitalAssociada()) {
-            logger.error("Já existe uma conta digital vinculada ao cartao {} no banco de dados", id);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível encontrar cartão, dados inconsistentes");
-        }
-        try {
-            ResultadoCarteira resultadoCarteira = cartaoClient.solicitaInclusaoCarteira(id, solicitacao);
-            if (!resultadoCarteira.estaAssociada()) {
-            logger.error("Serviço externo não associou a conta digital ao cartao {} no banco de dados", id);
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível cadastrar carteira, tente novamente mais tarde");
-            }
-
-            CarteiraDigital carteiraDigital = resultadoCarteira.toModel(solicitacao.getCarteira());
-            logger.info("id {} e descricao {}",solicitacao.getEmail(), solicitacao.getCarteira() );
-            cartao.setCarteiraDigital(carteiraDigital);
-            manager.persist(cartao);
-            URI uri = builder.path("/cartoes/carteira/{id}").buildAndExpand(carteiraDigital.getId()).toUri();
-            return ResponseEntity.created(uri).build();
-
-        } catch (FeignException.FeignServerException e) {
-            logger.error("Não foi possível cadastrara carteira Erro {}, {}", e.status(), e.getMessage());
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível cadastrar carteira no momento, tente novamente mais tarde");
-
-        } catch (FeignException.FeignClientException e) {
-            logger.error("Impossível cadastrar carteira. Erro {}, {}", e.status(), e.getMessage());
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossível cadastrar carteira, dados inconsistentes");
-        }
-    }
-
-    @GetMapping("/carteira/{id}")
-    public ResponseEntity buscaCarteira(@PathVariable("id") String id){
-        CarteiraDigital carteiraDigital = manager.find(CarteiraDigital.class, id);
-
-        return ResponseEntity.ok(new CarteiraDigitalResponse(carteiraDigital));
-    }
 }

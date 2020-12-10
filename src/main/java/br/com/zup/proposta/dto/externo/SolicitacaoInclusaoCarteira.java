@@ -1,12 +1,15 @@
 package br.com.zup.proposta.dto.externo;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 public class SolicitacaoInclusaoCarteira {
 
     @NotBlank
+    @Email
     private String email;
 
+    @NotBlank
     private String carteira;
 
     @Deprecated
