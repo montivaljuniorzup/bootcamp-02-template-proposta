@@ -1,5 +1,5 @@
 package br.com.zup.proposta.model.enums;
 
-public enum Resultado {
+public enum StatusAvisoViagem {
     CRIADO, FALHA
 }

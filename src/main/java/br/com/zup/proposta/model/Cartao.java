@@ -41,6 +41,10 @@ public class Cartao {
     @OneToMany(cascade = CascadeType.ALL)
     private List<AvisoViagem> viagens = new ArrayList<>();
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private CarteiraDigital carteiraDigital;
+
     @Deprecated
     public Cartao() {
     }
@@ -61,7 +65,6 @@ public class Cartao {
     }
 
     public boolean cartaoEstaBloqueado(){
-
         return this.bloqueio != null;
     }
 
@@ -95,6 +98,19 @@ public class Cartao {
     public List<AvisoViagem> getViagens() {
         return viagens;
     }
+
+    public CarteiraDigital getCarteiraDigital() {
+        return carteiraDigital;
+    }
+
+    public List<Biometria> getBiometrias() {
+        return biometrias;
+    }
+
+    public void setCarteiraDigital(CarteiraDigital carteiraDigital) {
+        this.carteiraDigital = carteiraDigital;
+    }
+
     public void setStatus(String status) {
         this.status = StatusCartao.toEnum(status);
     }
@@ -109,5 +125,9 @@ public class Cartao {
 
     public void adcionaNovaViagem(AvisoViagem avisoViagem) {
         this.viagens.add(avisoViagem);
+    }
+
+    public boolean temCarteiraDigitalAssociada(){
+        return this.carteiraDigital != null;
     }
 }

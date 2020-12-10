@@ -1,9 +1,6 @@
 package br.com.zup.proposta.feign;
 
-import br.com.zup.proposta.dto.externo.CartaoPropostaResponseExterno;
-import br.com.zup.proposta.dto.externo.SolicitacaoBloqueio;
-import br.com.zup.proposta.dto.externo.ResultadoAvisoViagem;
-import br.com.zup.proposta.dto.externo.StatusCartaoResponseExterno;
+import br.com.zup.proposta.dto.externo.*;
 import br.com.zup.proposta.dto.request.AvisoViagemRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -21,5 +18,8 @@ public interface CartaoClient {
 
     @PostMapping(value = "/api/cartoes/{id}/avisos")
     ResultadoAvisoViagem avisaViagem(@PathVariable("id") String id, @RequestBody AvisoViagemRequest avisoViagemRequest);
+
+    @PostMapping(value = "/api/cartoes/{id}/carteiras")
+    ResultadoCarteira solicitaInclusaoCarteira(@PathVariable("id") String id, @RequestBody SolicitacaoInclusaoCarteira solicitacaoInclusaoCarteira);
 
 }

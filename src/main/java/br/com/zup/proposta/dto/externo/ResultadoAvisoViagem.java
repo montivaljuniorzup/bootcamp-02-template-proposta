@@ -1,20 +1,24 @@
 package br.com.zup.proposta.dto.externo;
 
-import br.com.zup.proposta.model.enums.Resultado;
+import br.com.zup.proposta.model.enums.StatusAvisoViagem;
 
 public class ResultadoAvisoViagem {
 
-    private Resultado resultado;
+    private StatusAvisoViagem statusAvisoViagem;
 
     @Deprecated
     public ResultadoAvisoViagem() {
     }
 
-    public ResultadoAvisoViagem(Resultado resultado) {
-        this.resultado = resultado;
+    public ResultadoAvisoViagem(StatusAvisoViagem statusAvisoViagem) {
+        this.statusAvisoViagem = statusAvisoViagem;
     }
 
-    public Resultado getResultado() {
-        return resultado;
+    public StatusAvisoViagem getResultado() {
+        return statusAvisoViagem;
+    }
+
+    public boolean estaCriado() {
+        return this.getResultado().equals(StatusAvisoViagem.CRIADO);
     }
 }
