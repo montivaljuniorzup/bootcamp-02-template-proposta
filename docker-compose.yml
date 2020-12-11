@@ -111,6 +111,7 @@ services:
   prometheus:
     image: prom/prometheus
     volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
       - prometheus-volume:/etc/prometheus/
     network_mode: bridge
     ports:

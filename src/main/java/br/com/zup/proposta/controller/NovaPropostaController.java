@@ -43,9 +43,11 @@ public class NovaPropostaController {
     @PostMapping
     @Transactional
     public ResponseEntity criaNovaProposta(@Valid @RequestBody NovaPropostaRequest novaPropostaRequest, UriComponentsBuilder builder) {
+
         Span activeSpan = tracer.activeSpan();
         activeSpan.setTag("user.email", novaPropostaRequest.getEmail());
         activeSpan.setBaggageItem("user.email", novaPropostaRequest.getEmail());
+
         boolean naoExisteDocumentoNoBanco = manager
                 .createQuery("Select p from Proposta p where p.documento =:documento")
                 .setParameter("documento", novaPropostaRequest.getDocumento())
