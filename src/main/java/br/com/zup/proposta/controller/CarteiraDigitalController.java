@@ -7,6 +7,7 @@ import br.com.zup.proposta.feign.CartaoClient;
 import br.com.zup.proposta.model.Cartao;
 import br.com.zup.proposta.model.CarteiraDigital;
 import feign.FeignException;
+import io.opentracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,15 +28,17 @@ public class CarteiraDigitalController {
     private static Logger logger = LoggerFactory.getLogger(CarteiraDigitalController.class);
     private CartaoClient cartaoClient;
     private EntityManager manager;
+    private Tracer tracer;
 
-    public CarteiraDigitalController(CartaoClient cartaoClient, EntityManager manager) {
+    public CarteiraDigitalController(CartaoClient cartaoClient, EntityManager manager, Tracer tracer) {
         this.cartaoClient = cartaoClient;
         this.manager = manager;
+        this.tracer = tracer;
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity deveCadastrarCarteira(@RequestParam(value = "id", required = true) String id,
+    public ResponseEntity cadastraCarteiraDigital(@RequestParam(value = "id", required = true) String id,
                                                 @Valid @RequestBody SolicitacaoInclusaoCarteira solicitacao,
                                                 UriComponentsBuilder builder) {
         Cartao cartao = manager.find(Cartao.class, id);
@@ -72,7 +75,7 @@ public class CarteiraDigitalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity buscaCarteira(@PathVariable("id") String id) {
+    public ResponseEntity buscaCarteiraDigital(@PathVariable("id") String id) {
         CarteiraDigital carteiraDigital = manager.find(CarteiraDigital.class, id);
 
         return ResponseEntity.ok(new CarteiraDigitalResponse(carteiraDigital));

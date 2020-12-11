@@ -58,6 +58,14 @@
             <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
 
+        <!--        Jaeger          -->
+
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-jaeger-cloud-starter</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+
         <!--            Banco de Dados H2               -->
 
         <dependency>

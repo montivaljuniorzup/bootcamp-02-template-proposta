@@ -19,6 +19,6 @@ public class ResultadoAvisoViagem {
     }
 
     public boolean estaCriado() {
-        return this.getResultado().equals(StatusAvisoViagem.CRIADO);
+        return StatusAvisoViagem.CRIADO.equals(this.statusAvisoViagem);
     }
 }

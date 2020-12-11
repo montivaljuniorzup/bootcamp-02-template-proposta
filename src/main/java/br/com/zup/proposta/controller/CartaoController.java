@@ -3,29 +3,23 @@ package br.com.zup.proposta.controller;
 import br.com.zup.proposta.dto.externo.SolicitacaoBloqueio;
 import br.com.zup.proposta.dto.externo.StatusCartaoResponseExterno;
 import br.com.zup.proposta.dto.request.AvisoViagemRequest;
-import br.com.zup.proposta.dto.request.BiometriaRequest;
-import br.com.zup.proposta.dto.response.BiometriaResponse;
 import br.com.zup.proposta.feign.CartaoClient;
 import br.com.zup.proposta.model.AvisoViagem;
-import br.com.zup.proposta.model.Biometria;
 import br.com.zup.proposta.model.Bloqueio;
 import br.com.zup.proposta.model.Cartao;
 import feign.FeignException;
+import io.opentracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/cartoes")
@@ -34,41 +28,12 @@ public class CartaoController {
     private static Logger logger = LoggerFactory.getLogger(CartaoController.class);
     private CartaoClient cartaoClient;
     private EntityManager manager;
+    private Tracer tracer;
 
-    public CartaoController(CartaoClient cartaoClient, EntityManager manager) {
+    public CartaoController(CartaoClient cartaoClient, EntityManager manager, Tracer tracer) {
         this.cartaoClient = cartaoClient;
         this.manager = manager;
-    }
-
-//    @InitBinder
-//    public void init(WebDataBinder binder) {
-//        binder.addValidators(new FingerPrintValidator());
-//    }
-
-    @PostMapping("/biometria")
-    @Transactional
-    public ResponseEntity criaBiometria(@RequestParam("id") String idCartao,
-                                        @RequestBody @Valid BiometriaRequest biometriaRequest,
-                                        UriComponentsBuilder builder) {
-        Cartao cartao = manager.find(Cartao.class, idCartao);
-        if (Optional.ofNullable(cartao).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Impossível cadastrar biometria, dados inconsistentes");
-        }
-        Biometria biometria = biometriaRequest.toModel();
-        cartao.adcionaNovaBiometria(biometria);
-        manager.persist(cartao);
-        URI uri = builder.path("/cartoes/{id}/biometria").buildAndExpand(biometria.getId()).toUri();
-        return ResponseEntity.created(uri).build();
-    }
-
-    @GetMapping("/{id}/biometria")
-    @Transactional
-    public ResponseEntity buscaBiometriaPorId(@PathVariable("id") UUID id) {
-        Biometria biometria = manager.find(Biometria.class, id);
-        if (Optional.ofNullable(biometria).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Biometria não encontrada");
-        }
-        return ResponseEntity.ok(new BiometriaResponse(biometria));
+        this.tracer = tracer;
     }
 
     @PostMapping("/{id}/bloqueio")
@@ -103,7 +68,9 @@ public class CartaoController {
 
     @PostMapping("/viagem")
     @Transactional
-    public ResponseEntity comunicaViagem(@RequestParam(value = "id", required = true) String id, @RequestBody AvisoViagemRequest avisoViagemRequest, HttpServletRequest client) {
+    public ResponseEntity comunicaViagem(@RequestParam(value = "id", required = true) String id,
+                                         @RequestBody @Valid AvisoViagemRequest avisoViagemRequest,
+                                         HttpServletRequest client) {
         Cartao cartao = manager.find(Cartao.class, id);
         if (cartao == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Impossível cadastrar viagem, dados inconsistentes");
