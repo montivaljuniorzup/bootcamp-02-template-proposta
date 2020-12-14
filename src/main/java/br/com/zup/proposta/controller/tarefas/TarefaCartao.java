@@ -39,7 +39,7 @@ public class TarefaCartao {
             logger.info("Não existem propostas no banco");
             return;
         }
-
+    
         logger.info("Existem {} propostas no banco", propostas.size());
 
         propostas.stream()
