@@ -48,18 +48,11 @@ public class NovaPropostaController {
         activeSpan.setTag("user.email", novaPropostaRequest.getEmail());
         activeSpan.setBaggageItem("user.email", novaPropostaRequest.getEmail());
 
-        boolean naoExisteDocumentoNoBanco = manager
-                .createQuery("Select p from Proposta p where p.documento =:documento")
-                .setParameter("documento", novaPropostaRequest.getDocumento())
-                .getResultList()
-                .isEmpty();
-
-        if (naoExisteDocumentoNoBanco) {
+        if (verificaSeNaoExisteDocumentoNoBanco(novaPropostaRequest)) {
             Proposta proposta = novaPropostaRequest.toModel();
             manager.persist(proposta);
 
-            AnalisePropostaRequest request = new AnalisePropostaRequest(proposta);
-            verificaDadosSolicitante(proposta, request);
+            ataulizaStatusProposta(proposta, new AnalisePropostaRequest(proposta));
 
             URI uri = builder.path("/propostas/{id}").buildAndExpand(proposta.getId()).toUri();
 
@@ -71,46 +64,42 @@ public class NovaPropostaController {
         throw new ApiErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Dados inconsistentes, impossível proseguir o processamento");
     }
 
-//    @GetMapping("/{id}")
-//    @Transactional
-//    public ResponseEntity buscaPropostaPeloId(@PathVariable("id") UUID id) {
-//        Proposta proposta = manager.find(Proposta.class, id);
-//        if (Optional.ofNullable(proposta).isEmpty()) {
-//            logger.error("Proposta id={} não encontrada", id);
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//        logger.info("Proposta id={} encontrada com sucesso", id);
-//        return ResponseEntity.ok(new PropostaResponse(proposta));
-//    }
-//
-//    @GetMapping("/{id}/status")
-//    @Transactional
-//    public ResponseEntity buscaStatusPropostaPeloId(@PathVariable("id") UUID id) {
-//        Proposta proposta = manager.find(Proposta.class, id);
-//        if (Optional.ofNullable(proposta).isEmpty()) {
-//            logger.error("Proposta id={} não encontrada", id);
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//        logger.info("Proposta id={} encontrada com sucesso", id);
-//        return ResponseEntity.ok(new StatusPropostaResponse(proposta));
-//    }
+    private boolean verificaSeNaoExisteDocumentoNoBanco(NovaPropostaRequest novaPropostaRequest) {
+        return manager
+                .createQuery("Select p from Proposta p where p.documento =:documento")
+                .setParameter("documento", novaPropostaRequest.getDocumento())
+                .getResultList()
+                .isEmpty();
+    }
 
-    private void verificaDadosSolicitante(Proposta proposta, AnalisePropostaRequest request) {
+    private void ataulizaStatusProposta(Proposta proposta, AnalisePropostaRequest request) {
         try {
-            AnalisePropostaResponseExterno resultado = analiseClient.resultado(request);
-
-            proposta.setStatus(resultado.getResultadoSolicitacao());
-            manager.persist(proposta);
-            logger.info("Solicitação buscada com sucesso");
-
+            adicionaStatusSemRestricaoEAtualizaProposta(proposta, request);
         } catch (FeignException.UnprocessableEntity e) {
-            if (e.getLocalizedMessage().contains("COM_RESTRICAO")) {
-                proposta.setStatus("COM_RESTRICAO");
-                manager.persist(proposta);
-            }
+            adicionaStatusComRestricaoEAtualizaProposta(proposta, e);
         } catch (FeignException e) {
             logger.error("Erro " + e.getMessage() + " ao buscar solicitação");
             throw new ApiErrorException(HttpStatus.valueOf(e.status()), e.getLocalizedMessage());
         }
+    }
+
+    private void adicionaStatusComRestricaoEAtualizaProposta(Proposta proposta, FeignException.UnprocessableEntity e) {
+        if (e.getLocalizedMessage().contains("COM_RESTRICAO")) {
+            proposta.setStatus("COM_RESTRICAO");
+            logger.info("Adicionado status de Com Retrição a proposta");
+            manager.persist(proposta);
+        }
+    }
+
+    private void adicionaStatusSemRestricaoEAtualizaProposta(Proposta proposta, AnalisePropostaRequest request) {
+        AnalisePropostaResponseExterno resultadoAnalise = buscaResultadoAnaliseProposta(request);
+
+        proposta.setStatus(resultadoAnalise.getResultadoSolicitacao());
+        manager.persist(proposta);
+        logger.info("Adicionado status de Sem Retrição a proposta");
+    }
+
+    private AnalisePropostaResponseExterno buscaResultadoAnaliseProposta(AnalisePropostaRequest request) {
+        return analiseClient.resultado(request);
     }
 }
